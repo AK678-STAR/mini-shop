@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Shop - Cửa Hàng Công Nghệ & Phụ Kiện Cao Cấp</title>
+  <meta name="description" content="Mini Shop - Dự án bài tập về nhà Buổi 4: UI/UX chuẩn Vibe Coding với 3 màn hình, Dark Mode, Giỏ hàng 3 bước và Unit Test.">
+  <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- TOP ANNOUNCEMENT BAR -->
+  <div class="announcement-bar">
+    <div class="container announcement-inner">
+      <span>🚀 <strong>Ưu đãi khai trương:</strong> Nhập mã <code class="code-badge">GIAM20</code> giảm 20% • Tự động Free Ship cho đơn từ 5.000.000₫!</span>
+      <div class="demo-state-toggles">
+        <button id="btnSimulateLoading" class="btn-text-sm" title="Giả lập trạng thái Loading Skeleton">⏳ Thử Loading</button>
+        <button id="btnSimulateError" class="btn-text-sm" title="Giả lập trạng thái Báo lỗi">⚠️ Thử Lỗi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVBAR COMPONENT -->
+  <header class="site-header" data-component="Navbar">
+    <div class="container header-container">
+      <!-- Logo -->
+      <a href="#catalog" class="logo" id="logoBtn">
+        <span class="logo-badge">⚡</span>
+        <span class="logo-text">Mini<span class="logo-accent">Shop</span></span>
+      </a>
+
+      <!-- Search Bar -->
+      <div class="search-box">
+        <i data-lucide="search" class="search-icon"></i>
+        <input type="text" id="searchInput" placeholder="Tìm kiếm điện thoại, laptop, tai nghe..." aria-label="Tìm kiếm sản phẩm">
+        <button id="clearSearchBtn" class="clear-search-btn hidden" aria-label="Xóa tìm kiếm">✕</button>
+      </div>
+
+      <!-- Navigation Links & Actions -->
+      <div class="header-actions">
+        <nav class="nav-links">
+          <button class="nav-btn active" id="navCatalogBtn" data-target="catalog">
+            <i data-lucide="grid"></i> <span>Sản phẩm</span>
+          </button>
+          <button class="nav-btn" id="navCartBtn" data-target="cart">
+            <i data-lucide="shopping-cart"></i> <span>Giỏ hàng</span>
+            <span id="cartCountBadge" class="cart-badge">0</span>
+          </button>
+        </nav>
+
+        <!-- Dark / Light Mode Toggle -->
+        <button id="themeToggleBtn" class="btn-icon" aria-label="Đổi giao diện Sáng / Tối" title="Chuyển chế độ Dark / Light Mode">
+          <i data-lucide="sun" class="theme-icon-sun"></i>
+          <i data-lucide="moon" class="theme-icon-moon hidden"></i>
+        </button>
+
+        <!-- Mobile Menu Hamburger -->
+        <button id="mobileMenuBtn" class="btn-icon mobile-only" aria-label="Mở Menu Mobile">
+          <i data-lucide="menu"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="app-main container">
+
+    <!-- ERROR STATE VIEW (PROMPT 11) -->
+    <div id="errorStateView" class="state-card error-card hidden">
+      <div class="state-icon-danger">
+        <i data-lucide="alert-triangle"></i>
+      </div>
+      <h2>Không thể tải dữ liệu từ máy chủ</h2>
+      <p>Đã xảy ra lỗi khi kết nối với hệ thống sản phẩm. Vui lòng kiểm tra kết nối mạng và thử lại.</p>
+      <div class="state-actions">
+        <button id="btnRetryLoad" class="btn btn-primary">
+          <i data-lucide="refresh-cw"></i> Thử lại ngay
+        </button>
+        <button id="btnDismissError" class="btn btn-secondary">Đóng thông báo</button>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         MÀN HÌNH 1: DANH SÁCH SẢN PHẨM (CATALOG & FILTER)
+    ========================================================= -->
+    <section id="screenCatalog" class="screen-view active" data-component="ProductCatalog">
+      <!-- Banner / Heading -->
+      <div class="catalog-hero">
+        <div>
+          <h1 class="page-title">Khám Phá Thiết Bị Công Nghệ</h1>
+          <p class="page-subtitle">Sản phẩm chính hãng 100%, bảo hành 12 tháng, giao hàng hỏa tốc 2 giờ.</p>
+        </div>
+        <div class="view-mode-controls">
+          <button id="viewGridBtn" class="btn-icon active" title="Xem dạng lưới" aria-label="Dạng lưới">
+            <i data-lucide="layout-grid"></i>
+          </button>
+          <button id="viewListBtn" class="btn-icon" title="Xem dạng danh sách" aria-label="Dạng danh sách">
+            <i data-lucide="list"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters & Sorting Bar -->
+      <div class="filters-bar">
+        <!-- Category Filter Pills -->
+        <div class="category-pills" id="categoryPills">
+          <button class="pill-btn active" data-category="all">
+            <i data-lucide="sparkles"></i> Tất cả
+          </button>
+          <button class="pill-btn" data-category="phone">
+            <i data-lucide="smartphone"></i> Điện thoại
+          </button>
+          <button class="pill-btn" data-category="laptop">
+            <i data-lucide="laptop"></i> Laptop & Tablet
+          </button>
+          <button class="pill-btn" data-category="audio">
+            <i data-lucide="headphones"></i> Tai nghe & Loa
+          </button>
+          <button class="pill-btn" data-category="accessory">
+            <i data-lucide="watch"></i> Phụ kiện
+          </button>
+        </div>
+
+        <!-- Sorting & Price Filter -->
+        <div class="sort-wrapper">
+          <label for="sortSelect" class="sr-only">Sắp xếp</label>
+          <select id="sortSelect" class="select-input">
+            <option value="popular">🔥 Phổ biến nhất</option>
+            <option value="price-asc">💵 Giá: Thấp đến Cao</option>
+            <option value="price-desc">💎 Giá: Cao đến Thấp</option>
+            <option value="rating">⭐ Đánh giá cao nhất</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Active Filters Tag Strip -->
+      <div id="activeFilterTags" class="active-tags-strip hidden">
+        <span class="tags-label">Đang lọc:</span>
+        <span id="tagText" class="filter-tag"></span>
+        <button id="clearAllFiltersBtn" class="btn-text-sm">Xóa lọc</button>
+      </div>
+
+      <!-- SKELETON LOADING GRID (PROMPT 11) -->
+      <div id="catalogSkeleton" class="products-grid hidden">
+        <!-- 4 Skeletons -->
+        <div class="skeleton-card">
+          <div class="skeleton-img skeleton-pulse"></div>
+          <div class="skeleton-text skeleton-pulse" style="width: 40%; height: 12px; margin-top: 16px;"></div>
+          <div class="skeleton-text skeleton-pulse" style="width: 80%; height: 18px; margin: 8px 0;"></div>
+          <div class="skeleton-text skeleton-pulse" style="width: 60%; height: 14px;"></div>
+          <div class="skeleton-footer">
+            <div class="skeleton-text skeleton-pulse" style="width: 40%; height: 24px;"></div>
+            <div class="skeleton-text skeleton-pulse" style="width: 30%; height: 36px; border-radius: 12px;"></div>
+          </div>
+        </div>
+        <div class="skeleton-card">
+          <div class="skeleton-img skeleton-pulse"></div>
+          <div class="skeleton-text skeleton-pulse" style="width: 40%; height: 12px; margin-top: 16px;"></div>
+          <div class="skeleton-text skeleton-pulse" style="width: 80%; height: 18px; margin: 8px 0;"></div>
+          <div class="skeleton-text skeleton-pulse" style="width: 60%; height: 14px;"></div>
+          <div class="skeleton-footer">
+            <div class="skeleton-text skeleton-pulse" style="width: 40%; height: 24px;"></div>
+            <div class="skeleton-text skeleton-pulse" style="width: 30%; height: 36px; border-radius: 12px;"></div>
+          </div>
+        </div>
+        <div class="skeleton-card">
+          <div class="skeleton-img skeleton-pulse"></div>
+          <div class="skeleton-text skeleton-pulse" style="width: 40%; height: 12px; margin-top: 16px;"></div>
+          <div class="skeleton-text skeleton-pulse" style="width: 80%; height: 18px; margin: 8px 0;"></div>
+          <div class="skeleton-text skeleton-pulse" style="width: 60%; height: 14px;"></div>
+          <div class="skeleton-footer">
+            <div class="skeleton-text skeleton-pulse" style="width: 40%; height: 24px;"></div>
+            <div class="skeleton-text skeleton-pulse" style="width: 30%; height: 36px; border-radius: 12px;"></div>
+          </div>
+        </div>
+        <div class="skeleton-card">
+          <div class="skeleton-img skeleton-pulse"></div>
+          <div class="skeleton-text skeleton-pulse" style="width: 40%; height: 12px; margin-top: 16px;"></div>
+          <div class="skeleton-text skeleton-pulse" style="width: 80%; height: 18px; margin: 8px 0;"></div>
+          <div class="skeleton-text skeleton-pulse" style="width: 60%; height: 14px;"></div>
+          <div class="skeleton-footer">
+            <div class="skeleton-text skeleton-pulse" style="width: 40%; height: 24px;"></div>
+            <div class="skeleton-text skeleton-pulse" style="width: 30%; height: 36px; border-radius: 12px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRODUCTS CONTAINER -->
+      <div id="productsGrid" class="products-grid">
+        <!-- Dynamically rendered via app.js -->
+      </div>
+
+      <!-- EMPTY SEARCH / FILTER STATE (PROMPT 11) -->
+      <div id="catalogEmptyState" class="state-card hidden">
+        <div class="state-icon">🔍</div>
+        <h3>Không tìm thấy sản phẩm phù hợp</h3>
+        <p>Thử tìm kiếm với từ khóa khác hoặc xóa bớt bộ lọc danh mục.</p>
+        <button id="btnResetSearch" class="btn btn-primary">Xóa bộ lọc & Xem tất cả</button>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         MÀN HÌNH 2: CHI TIẾT SẢN PHẨM (PRODUCT DETAIL)
+    ========================================================= -->
+    <section id="screenDetail" class="screen-view" data-component="ProductDetail">
+      <!-- Breadcrumb Navigation -->
+      <nav class="breadcrumb-nav" aria-label="Đường dẫn trang">
+        <a href="#catalog" id="detailBackLink" class="breadcrumb-item">
+          <i data-lucide="arrow-left"></i> Quay lại danh sách
+        </a>
+        <span class="breadcrumb-separator">/</span>
+        <span id="breadcrumbCategory" class="breadcrumb-item text-muted">Điện thoại</span>
+        <span class="breadcrumb-separator">/</span>
+        <span id="breadcrumbTitle" class="breadcrumb-item active">Tên sản phẩm</span>
+      </nav>
+
+      <!-- Product Detail Layout Grid -->
+      <div class="detail-grid">
+        <!-- Left Column: Gallery -->
+        <div class="detail-gallery">
+          <div class="gallery-main-wrap">
+            <span id="detailBadge" class="card-badge">-15%</span>
+            <img id="detailMainImg" src="" alt="Ảnh sản phẩm chi tiết" class="gallery-main-img">
+          </div>
+          <div class="gallery-thumbs" id="galleryThumbs">
+            <!-- Thumbs dynamically injected -->
+          </div>
+        </div>
+
+        <!-- Right Column: Product Info & Actions -->
+        <div class="detail-info">
+          <span id="detailCategory" class="detail-cat-badge">ĐIỆN THOẠI</span>
+          <h1 id="detailTitle" class="detail-title">Tên Sản Phẩm Đầy Đủ</h1>
+          
+          <div class="detail-rating-row">
+            <div class="rating-stars" id="detailRatingStars">★★★★★</div>
+            <span id="detailRatingText" class="rating-text">4.9 (142 đánh giá)</span>
+            <span class="stock-status in-stock"><i data-lucide="check-circle-2"></i> Còn hàng</span>
+          </div>
+
+          <div class="detail-price-box">
+            <span id="detailCurrentPrice" class="price-current">0₫</span>
+            <span id="detailOriginalPrice" class="price-original">0₫</span>
+            <span id="detailDiscountTag" class="discount-pill">Tiết kiệm 0₫</span>
+          </div>
+
+          <p id="detailShortDesc" class="detail-short-desc">
+            Mô tả sản phẩm nổi bật, cam kết hàng chính hãng 100% nguyên seal đầy đủ phụ kiện.
+          </p>
+
+          <!-- Variant Selector: Color -->
+          <div class="variant-group">
+            <label class="variant-label">Chọn màu sắc: <strong id="selectedColorName">Titan Tự Nhiên</strong></label>
+            <div class="color-options" id="colorOptions">
+              <!-- Colors injected via JS -->
+            </div>
+          </div>
+
+          <!-- Variant Selector: Storage / Size -->
+          <div class="variant-group">
+            <label class="variant-label">Chọn phiên bản: <strong id="selectedVersionName">256GB</strong></label>
+            <div class="version-options" id="versionOptions">
+              <!-- Versions injected via JS -->
+            </div>
+          </div>
+
+          <!-- Quantity Selector & Action Buttons -->
+          <div class="detail-actions-row">
+            <div class="qty-selector">
+              <button id="btnQtyMinus" class="qty-btn" aria-label="Giảm số lượng">-</button>
+              <input type="number" id="detailQtyInput" value="1" min="1" max="99" aria-label="Số lượng">
+              <button id="btnQtyPlus" class="qty-btn" aria-label="Tăng số lượng">+</button>
+            </div>
+            
+            <button id="btnAddToCartDetail" class="btn btn-secondary btn-lg flex-1">
+              <i data-lucide="shopping-bag"></i> Thêm Vào Giỏ
+            </button>
+            <button id="btnBuyNowDetail" class="btn btn-primary btn-lg flex-1">
+              <i data-lucide="zap"></i> Mua Ngay
+            </button>
+          </div>
+
+          <!-- Commitments / Value Props -->
+          <div class="detail-perks">
+            <div class="perk-box">
+              <i data-lucide="shield-check" class="perk-icon"></i>
+              <span>Bảo hành chính hãng 12 tháng</span>
+            </div>
+            <div class="perk-box">
+              <i data-lucide="truck" class="perk-icon"></i>
+              <span>Giao hàng miễn phí toàn quốc</span>
+            </div>
+            <div class="perk-box">
+              <i data-lucide="rotate-ccw" class="perk-icon"></i>
+              <span>1 đổi 1 trong 30 ngày nếu lỗi</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs: Specifications & Customer Reviews -->
+      <div class="detail-tabs-section">
+        <div class="tab-headers">
+          <button class="tab-btn active" data-tab="specs">Thông số kỹ thuật</button>
+          <button class="tab-btn" data-tab="desc">Mô tả chi tiết</button>
+          <button class="tab-btn" data-tab="reviews">Đánh giá khách hàng (5★)</button>
+        </div>
+        <div class="tab-content" id="tabContent">
+          <!-- Dynamic Tab Content -->
+        </div>
+      </div>
+
+      <!-- Related Products -->
+      <div class="related-products-section">
+        <h2 class="section-title">Sản Phẩm Tương Tự</h2>
+        <div id="relatedGrid" class="products-grid">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         MÀN HÌNH 3: GIỎ HÀNG & THANH TOÁN 3 BƯỚC (CART & CHECKOUT)
+    ========================================================= -->
+    <section id="screenCart" class="screen-view" data-component="CartCheckout">
+      <!-- Checkout Step Progress Indicator -->
+      <div class="checkout-stepper">
+        <div class="step-node active" id="stepNode1">
+          <span class="step-num">1</span>
+          <span class="step-label">Giỏ hàng (<span id="cartHeaderQty">0</span>)</span>
+        </div>
+        <div class="step-line" id="stepLine1"></div>
+        <div class="step-node" id="stepNode2">
+          <span class="step-num">2</span>
+          <span class="step-label">Thông tin giao hàng</span>
+        </div>
+        <div class="step-line" id="stepLine2"></div>
+        <div class="step-node" id="stepNode3">
+          <span class="step-num">3</span>
+          <span class="step-label">Hoàn tất đặt hàng</span>
+        </div>
+      </div>
+
+      <!-- STEP 1: CART ITEMS TABLE & SUMMARY -->
+      <div id="cartStep1" class="checkout-step-content active">
+        <div class="cart-layout-grid">
+          <!-- Left: Cart Items List -->
+          <div class="cart-items-wrapper">
+            <div class="cart-items-header">
+              <h2>Danh sách món đã chọn</h2>
+              <button id="btnClearCart" class="btn-text-danger">Xóa tất cả</button>
+            </div>
+
+            <div id="cartItemsList" class="cart-items-list">
+              <!-- Cart items injected via JS -->
+            </div>
+
+            <!-- EMPTY CART STATE (PROMPT 11) -->
+            <div id="cartEmptyView" class="state-card hidden">
+              <div class="state-icon">🛒</div>
+              <h3>Giỏ hàng của bạn đang trống</h3>
+              <p>Hãy chọn những sản phẩm công nghệ tuyệt vời để tiếp tục mua sắm nhé!</p>
+              <button id="btnContinueShopping" class="btn btn-primary">
+                <i data-lucide="arrow-left"></i> Khám phá sản phẩm ngay
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Order Summary & Voucher -->
+          <div class="cart-summary-wrapper" id="cartSummaryBox">
+            <div class="summary-card">
+              <h3 class="summary-title">Tóm Tắt Đơn Hàng</h3>
+
+              <!-- Voucher Promo Input -->
+              <div class="voucher-box">
+                <label for="voucherInput" class="voucher-label">Mã giảm giá ưu đãi</label>
+                <div class="voucher-input-group">
+                  <input type="text" id="voucherInput" placeholder="Nhập mã GIAM20 hoặc FREESHIP" aria-label="Mã giảm giá">
+                  <button id="btnApplyVoucher" class="btn btn-secondary">Áp dụng</button>
+                </div>
+                <div id="voucherFeedback" class="voucher-msg"></div>
+              </div>
+
+              <!-- Calculation lines -->
+              <div class="summary-rows">
+                <div class="summary-line">
+                  <span>Tạm tính (<span id="summaryTotalItems">0</span> món):</span>
+                  <strong id="summarySubtotal">0₫</strong>
+                </div>
+                <div class="summary-line text-success" id="discountLine">
+                  <span>Giảm giá khuyến mãi:</span>
+                  <strong id="summaryDiscount">-0₫</strong>
+                </div>
+                <div class="summary-line">
+                  <span>Phí vận chuyển:</span>
+                  <strong id="summaryShipping">30.000₫</strong>
+                </div>
+                <div class="summary-line total-line">
+                  <span>Tổng thanh toán:</span>
+                  <strong id="summaryFinalTotal" class="final-price">0₫</strong>
+                </div>
+              </div>
+
+              <button id="btnProceedToCheckout" class="btn btn-primary btn-block btn-lg">
+                Tiếp Tục Thanh Toán <i data-lucide="arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: SHIPPING & PAYMENT FORM -->
+      <div id="cartStep2" class="checkout-step-content hidden">
+        <div class="checkout-form-grid">
+          <!-- Customer Info Form -->
+          <div class="checkout-form-col">
+            <h2 class="form-title">Thông Tin Giao Hàng & Thanh Toán</h2>
+            
+            <form id="checkoutForm" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="custName">Họ và tên người nhận <span class="req">*</span></label>
+                  <input type="text" id="custName" placeholder="Ví dụ: Nguyễn Văn A" required>
+                  <span class="field-error" id="errCustName"></span>
+                </div>
+                <div class="form-group">
+                  <label for="custPhone">Số điện thoại <span class="req">*</span></label>
+                  <input type="tel" id="custPhone" placeholder="09xxxxxxxx" required>
+                  <span class="field-error" id="errCustPhone"></span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="custEmail">Địa chỉ Email (để nhận hóa đơn)</label>
+                <input type="email" id="custEmail" placeholder="email@domain.com">
+              </div>
+
+              <div class="form-group">
+                <label for="custAddress">Địa chỉ nhận hàng chi tiết <span class="req">*</span></label>
+                <input type="text" id="custAddress" placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành" required>
+                <span class="field-error" id="errCustAddress"></span>
+              </div>
+
+              <div class="form-group">
+                <label>Phương thức thanh toán <span class="req">*</span></label>
+                <div class="payment-options">
+                  <label class="payment-radio-label">
+                    <input type="radio" name="payMethod" value="COD" checked>
+                    <div class="payment-box">
+                      <i data-lucide="truck"></i>
+                      <div>
+                        <strong>Thanh toán khi nhận hàng (COD)</strong>
+                        <small>Kiểm tra hàng trước khi thanh toán</small>
+                      </div>
+                    </div>
+                  </label>
+
+                  <label class="payment-radio-label">
+                    <input type="radio" name="payMethod" value="QR">
+                    <div class="payment-box">
+                      <i data-lucide="qr-code"></i>
+                      <div>
+                        <strong>Chuyển khoản VietQR / MoMo</strong>
+                        <small>Quét mã QR tiện lợi, xác nhận tức thì</small>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="orderNote">Ghi chú giao hàng (Tùy chọn)</label>
+                <textarea id="orderNote" rows="2" placeholder="Giao giờ hành chính, gọi trước khi đến..."></textarea>
+              </div>
+
+              <div class="form-buttons-row">
+                <button type="button" id="btnBackToCart" class="btn btn-secondary">
+                  <i data-lucide="arrow-left"></i> Quay lại giỏ hàng
+                </button>
+                <button type="submit" class="btn btn-primary btn-lg">
+                  <i data-lucide="check-circle-2"></i> Xác Nhận Đặt Hàng Ngay
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Mini Order Review -->
+          <div class="checkout-review-col">
+            <div class="summary-card">
+              <h3 class="summary-title">Đơn hàng của bạn</h3>
+              <div id="checkoutMiniItems" class="mini-items-list">
+                <!-- Mini items preview -->
+              </div>
+              <div class="summary-rows" style="border-top: 1px dashed var(--border-color); padding-top: 12px; margin-top: 12px;">
+                <div class="summary-line">
+                  <span>Tổng tiền thanh toán:</span>
+                  <strong id="checkoutFinalTotal" class="final-price">0₫</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: ORDER SUCCESS RECEIPT MODAL -->
+      <div id="orderSuccessModal" class="modal-wrapper hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-box">
+          <div class="modal-icon-success">
+            <i data-lucide="check"></i>
+          </div>
+          <h2 class="modal-title">Đặt Hàng Thành Công!</h2>
+          <p class="modal-desc">
+            Cảm ơn bạn <strong id="successCustName">Khách Hàng</strong> đã tin tưởng mua sắm tại <strong>Mini Shop</strong>!
+          </p>
+
+          <div class="order-receipt" id="orderReceiptBox">
+            <!-- Receipt lines injected via JS -->
+          </div>
+
+          <div class="modal-actions">
+            <button id="btnFinishOrder" class="btn btn-primary btn-block btn-lg">
+              Tiếp Tục Mua Sắm
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER COMPONENT -->
+  <footer class="site-footer" data-component="Footer">
+    <div class="container footer-grid">
+      <div class="footer-brand-col">
+        <a href="#catalog" class="logo">
+          <span class="logo-badge">⚡</span>
+          <span class="logo-text">Mini<span class="logo-accent">Shop</span></span>
+        </a>
+        <p class="footer-desc">
+          Nền tảng mua sắm thiết bị công nghệ và phụ kiện cao cấp. Dự án bài tập về nhà Buổi 4: Vibe Coding UI/UX Masterclass.
+        </p>
+        <div class="badge-row">
+          <span class="token-badge">🎨 Tokenized CSS</span>
+          <span class="token-badge">⚡ WCAG 2.2 AA</span>
+          <span class="token-badge">📱 320px - 1440px</span>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Sản Phẩm Nổi Bật</h4>
+        <ul>
+          <li><a href="#" class="footer-cat-link" data-cat="phone">Điện thoại thông minh</a></li>
+          <li><a href="#" class="footer-cat-link" data-cat="laptop">Laptop & MacBook</a></li>
+          <li><a href="#" class="footer-cat-link" data-cat="audio">Tai nghe chống ồn</a></li>
+          <li><a href="#" class="footer-cat-link" data-cat="accessory">Đồng hồ & Phụ kiện</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Hỗ Trợ Khách Hàng</h4>
+        <ul>
+          <li><span>Hotline: 1800.6789 (Miễn phí)</span></li>
+          <li><span>Email: support@minishop.vn</span></li>
+          <li><span>Địa chỉ: 123 Lê Lợi, Quận 1, TP.HCM</span></li>
+          <li><span>Giờ làm việc: 08:00 - 22:00</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="container bottom-inner">
+        <p>© 2026 Mini Shop. Xây dựng hoàn chỉnh theo chuẩn Vibe Coding Buổi 4.</p>
+        <p class="author-tag">Tác giả: Học viên K1509</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- App Scripts -->
+  <script src="utils/cart.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

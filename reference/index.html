@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bản vẽ mẫu HTML Prototype - Mini Shop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-hover: #4338CA;
+      --accent: #F59E0B;
+      --bg-body: #F8FAFC;
+      --bg-surface: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --border-color: #E2E8F0;
+      --radius-card: 16px;
+      --radius-btn: 12px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); line-height: 1.5; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+    
+    /* Navbar Prototype */
+    [data-component="Navbar"] { background: var(--bg-surface); border-bottom: 1px solid var(--border-color); padding: 16px 0; }
+    .nav-inner { display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.25rem; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .nav-links { display: flex; gap: 24px; list-style: none; }
+    .nav-links a { color: var(--text-muted); text-decoration: none; font-weight: 500; }
+    .nav-actions { display: flex; gap: 12px; align-items: center; }
+    .btn-cart { background: var(--primary); color: #fff; border: none; padding: 10px 18px; border-radius: var(--radius-btn); font-weight: 600; cursor: pointer; }
+
+    /* Product Grid Section */
+    [data-component="ProductCatalog"] { padding: 40px 0; }
+    .catalog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+    .filter-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pill { padding: 8px 16px; border-radius: 9999px; border: 1px solid var(--border-color); background: var(--bg-surface); font-size: 0.875rem; font-weight: 500; cursor: pointer; }
+    .pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    .grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
+    
+    /* Product Card */
+    [data-component="ProductCard"] { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-card); overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; transition: transform 0.2s; }
+    [data-component="ProductCard"]:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .card-img-wrap { height: 200px; background: #EEF2F6; display: flex; align-items: center; justify-content: center; position: relative; }
+    .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .card-badge { position: absolute; top: 12px; left: 12px; background: var(--accent); color: #fff; font-size: 0.75rem; font-weight: 700; padding: 4px 8px; border-radius: 9999px; }
+    .card-body { padding: 16px; display: flex; flex-direction: column; flex-grow: 1; }
+    .card-category { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+    .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
+    .card-rating { color: #F59E0B; font-size: 0.85rem; margin-bottom: 12px; }
+    .card-footer { margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px dashed var(--border-color); }
+    .card-price { font-size: 1.15rem; font-weight: 700; color: var(--primary); }
+    .btn-add { background: #EEF2FF; color: var(--primary); border: 1px solid #C7D2FE; padding: 8px 14px; border-radius: var(--radius-btn); font-weight: 600; cursor: pointer; }
+
+    /* Footer */
+    [data-component="Footer"] { background: var(--bg-surface); border-top: 1px solid var(--border-color); padding: 32px 0; text-align: center; color: var(--text-muted); font-size: 0.875rem; margin-top: 60px; }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR COMPONENT -->
+  <header data-component="Navbar">
+    <div class="container nav-inner">
+      <a href="#" class="logo">⚡ Mini Shop</a>
+      <ul class="nav-links">
+        <li><a href="#" style="color: var(--primary);">Sản phẩm</a></li>
+        <li><a href="#">Khuyến mãi</a></li>
+        <li><a href="#">Về chúng tôi</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="btn-cart" data-action="open-cart">🛒 Giỏ hàng (3)</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- PRODUCT CATALOG COMPONENT -->
+  <main class="container" data-component="ProductCatalog">
+    <div class="catalog-header">
+      <div>
+        <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 4px;">Sản Phẩm Công Nghệ Nổi Bật</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Khám phá các thiết bị thông minh và phụ kiện chính hãng.</p>
+      </div>
+      <div class="filter-pills">
+        <button class="pill active">Tất cả</button>
+        <button class="pill">Điện thoại</button>
+        <button class="pill">Laptop & Tablet</button>
+        <button class="pill">Phụ kiện & Audio</button>
+      </div>
+    </div>
+
+    <div class="grid-layout">
+      <!-- Item 1 -->
+      <article data-component="ProductCard">
+        <div class="card-img-wrap">
+          <span class="card-badge">-15%</span>
+          <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop" alt="iPhone 15 Pro Max">
+        </div>
+        <div class="card-body">
+          <span class="card-category">Điện thoại</span>
+          <h3 class="card-title">iPhone 15 Pro Max 256GB Titan Tự Nhiên</h3>
+          <div class="card-rating">★★★★★ (128 đánh giá)</div>
+          <div class="card-footer">
+            <span class="card-price">28.990.000₫</span>
+            <button class="btn-add">+ Thêm</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Item 2 -->
+      <article data-component="ProductCard">
+        <div class="card-img-wrap">
+          <span class="card-badge" style="background: #10B981;">Hot</span>
+          <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop" alt="MacBook Air M3">
+        </div>
+        <div class="card-body">
+          <span class="card-category">Laptop</span>
+          <h3 class="card-title">MacBook Air 13" M3 8-Core CPU 16GB</h3>
+          <div class="card-rating">★★★★★ (94 đánh giá)</div>
+          <div class="card-footer">
+            <span class="card-price">27.490.000₫</span>
+            <button class="btn-add">+ Thêm</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Item 3 -->
+      <article data-component="ProductCard">
+        <div class="card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop" alt="Tai nghe Sony WH-1000XM5">
+        </div>
+        <div class="card-body">
+          <span class="card-category">Audio</span>
+          <h3 class="card-title">Tai Nghe Không Dây Sony WH-1000XM5</h3>
+          <div class="card-rating">★★★★★ (210 đánh giá)</div>
+          <div class="card-footer">
+            <span class="card-price">6.990.000₫</span>
+            <button class="btn-add">+ Thêm</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Item 4 -->
+      <article data-component="ProductCard">
+        <div class="card-img-wrap">
+          <span class="card-badge">-20%</span>
+          <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop" alt="Apple Watch Series 9">
+        </div>
+        <div class="card-body">
+          <span class="card-category">Phụ kiện</span>
+          <h3 class="card-title">Đồng Hồ Apple Watch Series 9 GPS 45mm</h3>
+          <div class="card-rating">★★★★☆ (67 đánh giá)</div>
+          <div class="card-footer">
+            <span class="card-price">9.290.000₫</span>
+            <button class="btn-add">+ Thêm</button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <!-- FOOTER COMPONENT -->
+  <footer data-component="Footer">
+    <div class="container">
+      <p>© 2026 Mini Shop. Bản vẽ Prototype HTML tham chiếu theo Prompt 09.</p>
+    </div>
+  </footer>
+
+</body>
+</html>
