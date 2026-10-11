@@ -7,19 +7,22 @@
 
 ## 🌟 1. DANH SÁCH HỒ SƠ DỰ ÁN THEO YÊU CẦU GIÁO ÁN
 
-1. **`DESIGN.md`:** Hệ thống Design System & Tokens hoàn chỉnh chốt từ Prompt 06.
-2. **`reference/`:**
+1. **`PRD.md`:** Tài liệu Yêu cầu Sản phẩm (Product Requirements Document) chi tiết các phân hệ và chân dung người dùng.
+2. **`TRD.md`:** Tài liệu Yêu cầu Kỹ thuật (Technical Requirements Document) đặc tả kiến trúc Next.js, Prisma ERD, Better Auth RBAC và Server Actions.
+3. **`DESIGN.md`:** Hệ thống Design System & Tokens hoàn chỉnh chốt từ Prompt 06.
+4. **`reference/`:**
    - `index.html`: Bản vẽ HTML prototype có gắn `data-component` theo Prompt 09.
    - `DESIGN_NOTES.md`: Bảng token và ghi chú tương tác từ bản vẽ.
-3. **`CONVERSION_NOTES.md`:** Kế hoạch ánh xạ và phân chia Server/Client component theo Prompt 10.
-4. **`src/`:** Mã nguồn ứng dụng Mini Shop:
+5. **`CONVERSION_NOTES.md`:** Kế hoạch ánh xạ và phân chia Server/Client component theo Prompt 10.
+6. **`AUTH_NOTES.md`:** Ghi chú kiến trúc xác thực Better Auth, phân quyền RBAC và ma trận phòng thủ 5 vector tấn công.
+7. **`src/`:** Mã nguồn ứng dụng Mini Shop:
    - **Màn hình 1:** Danh sách sản phẩm (Tìm kiếm, lọc danh mục, lọc giá, sắp xếp, Grid/List view).
    - **Màn hình 2:** Chi tiết sản phẩm (Gallery ảnh, chọn Màu/Dung lượng, tabs thông số kỹ thuật, đánh giá).
    - **Màn hình 3:** Giỏ hàng & Thanh toán 3 bước (Quản lý số lượng, áp dụng mã `GIAM20`/`FREESHIP`, Form giao hàng có validation, Modal hóa đơn đặt hàng).
    - **Dark Mode:** Nút chuyển đổi Dark/Light mode thời gian thực lưu vào `localStorage`.
    - **3 Trạng thái:** Loading Skeleton, Empty State, Error State kèm nút thử lại.
-5. **`tests/`:** Bộ Unit Test kiểm thử logic tính tiền giỏ hàng (`cart.test.js` & `test_cart.py`).
-6. **`prompt-log/`:** Đủ 6 file nhật ký prompt chuẩn mẫu giáo án (Vượt mốc yêu cầu $\ge 5$ mục).
+8. **`tests/`:** Bộ Unit Test kiểm thử logic tính tiền giỏ hàng (`cart.test.js` & `test_cart.py`).
+9. **`prompt-log/`:** Đủ các file nhật ký prompt chuẩn mẫu giáo án (11 mục, vượt mốc yêu cầu $\ge 5$ mục).
 
 ---
 
