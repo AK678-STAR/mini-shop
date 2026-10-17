@@ -5,6 +5,13 @@
 
 ---
 
+## 🌐 PRODUCTION LIVE DEMO
+* **Trang web chính thức:** **[https://leminhkhanh.vercel.app](https://leminhkhanh.vercel.app)**
+* **Trang sản phẩm:** **[https://leminhkhanh.vercel.app/products](https://leminhkhanh.vercel.app/products)**
+* **Database:** PostgreSQL 16 trên Supabase Cloud
+
+---
+
 ## 🌟 1. DANH SÁCH HỒ SƠ DỰ ÁN THEO YÊU CẦU GIÁO ÁN
 
 1. **`PRD.md`:** Tài liệu Yêu cầu Sản phẩm (Product Requirements Document) chi tiết các phân hệ và chân dung người dùng.
