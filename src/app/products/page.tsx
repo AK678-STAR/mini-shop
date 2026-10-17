@@ -1,38 +1,45 @@
 import React from "react";
 import Link from "next/link";
-import { listProducts, getCategories } from "@/server/products";
+import { parseProductUrlParams, RawProductSearchParams } from "@/lib/product-url-params";
+import {
+  fetchProductsViaSupabase,
+  fetchCategoriesViaSupabase,
+} from "@/lib/products-supabase";
 import { CatalogFilters } from "./catalog-filters";
 import { ProductCard } from "./product-card";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Next.js 16 (App Router):
+ * searchParams là một Promise theo chuẩn Next.js 15+, bắt buộc dùng `await props.searchParams`.
+ */
 interface ProductsPageProps {
-  searchParams: Promise<{
-    page?: string;
-    pageSize?: string;
-    q?: string;
-    category?: string;
-    sort?: "popular" | "price_asc" | "price_desc" | "newest";
-  }>;
+  searchParams: Promise<RawProductSearchParams>;
 }
 
 export default async function ProductsPage(props: ProductsPageProps) {
-  // Bất đồng bộ hóa searchParams theo chuẩn Next.js 15+
-  const searchParams = await props.searchParams;
+  // 1. Bất đồng bộ hóa searchParams theo quy chuẩn Next.js 16
+  const rawSearchParams = await props.searchParams;
 
-  const page = Math.max(1, Number(searchParams.page) || 1);
-  const pageSize = 12;
-  const q = searchParams.q;
-  const category = searchParams.category;
-  const sort = searchParams.sort;
+  // 2. Chuẩn hoá các tham số URL bằng hàm thuần parseProductUrlParams (Giai đoạn 1)
+  const params = parseProductUrlParams(rawSearchParams);
 
-  // Gọi trực tiếp Data Access Layer (Không fetch qua HTTP tự gọi mình)
+  // 3. Truy vấn Supabase bằng publishable key (kích thước trang 12, không N+1, whitelist sort)
   const [categories, result] = await Promise.all([
-    getCategories(),
-    listProducts({ page, pageSize, q, category, sort }),
+    fetchCategoriesViaSupabase(),
+    fetchProductsViaSupabase(params),
   ]);
 
-  const { products, total, totalPages } = result;
+  const { products, total, totalPages, page } = result;
+
+  // Chuẩn bị query object để giữ nguyên các bộ lọc khi chuyển trang
+  const currentQuery: Record<string, string> = {};
+  if (params.q) currentQuery.q = params.q;
+  if (params.category && params.category !== "all") currentQuery.category = params.category;
+  if (params.sort && params.sort !== "newest") currentQuery.sort = params.sort;
+  if (params.min !== null) currentQuery.min = String(params.min);
+  if (params.max !== null) currentQuery.max = String(params.max);
 
   return (
     <div className="container" style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 20px" }}>
@@ -49,9 +56,9 @@ export default async function ProductsPage(props: ProductsPageProps) {
       {/* Bộ lọc & Sắp xếp URL SearchParams */}
       <CatalogFilters
         categories={categories}
-        currentCategory={category}
-        currentSort={sort}
-        currentQ={q}
+        currentCategory={params.category}
+        currentSort={params.sort}
+        currentQ={params.q}
       />
 
       {/* Grid danh sách sản phẩm hoặc Empty State */}
@@ -61,7 +68,7 @@ export default async function ProductsPage(props: ProductsPageProps) {
           <h3 style={{ fontSize: "1.25rem", fontWeight: "700", marginBottom: "8px", color: "var(--text-main)" }}>
             Không tìm thấy sản phẩm phù hợp
           </h3>
-          <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", maxWidth: "400px", margin: "0 auto" }}>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", maxWidth: "420px", margin: "0 auto 20px" }}>
             Rất tiếc, không có sản phẩm nào khớp với tiêu chí tìm kiếm của bạn. Hãy thử chọn danh mục khác hoặc xóa bộ lọc.
           </p>
           <div className="state-actions">
@@ -70,7 +77,7 @@ export default async function ProductsPage(props: ProductsPageProps) {
               className="btn-primary"
               style={{
                 display: "inline-block",
-                padding: "10px 20px",
+                padding: "10px 24px",
                 borderRadius: "var(--radius-btn)",
                 background: "var(--primary)",
                 color: "#ffffff",
@@ -78,7 +85,7 @@ export default async function ProductsPage(props: ProductsPageProps) {
                 textDecoration: "none",
               }}
             >
-              Xem tất cả sản phẩm
+              Xóa tất cả bộ lọc
             </Link>
           </div>
         </div>
@@ -106,7 +113,7 @@ export default async function ProductsPage(props: ProductsPageProps) {
                 <Link
                   href={{
                     pathname: "/products",
-                    query: { ...searchParams, page: page - 1 },
+                    query: { ...currentQuery, page: page - 1 },
                   }}
                   className="pill-btn"
                   style={{ textDecoration: "none" }}
@@ -123,7 +130,7 @@ export default async function ProductsPage(props: ProductsPageProps) {
                 <Link
                   href={{
                     pathname: "/products",
-                    query: { ...searchParams, page: page + 1 },
+                    query: { ...currentQuery, page: page + 1 },
                   }}
                   className="pill-btn"
                   style={{ textDecoration: "none" }}
