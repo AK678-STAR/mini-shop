@@ -18,14 +18,12 @@ const supabaseAnonKey =
 
 let publicClientInstance: SupabaseClient | null = null;
 
-export function getSupabasePublicClient(): SupabaseClient {
-  if (!publicClientInstance) {
-    if (!supabaseAnonKey) {
-      console.warn(
-        "[Supabase] Cảnh báo: NEXT_PUBLIC_SUPABASE_ANON_KEY chưa được cấu hình trong biến môi trường. Vui lòng cấu hình trên Vercel hoặc file .env."
-      );
-    }
+export function getSupabasePublicClient(): SupabaseClient | null {
+  if (!supabaseAnonKey) {
+    return null;
+  }
 
+  if (!publicClientInstance) {
     publicClientInstance = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         persistSession: false,

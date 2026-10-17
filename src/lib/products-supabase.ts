@@ -132,12 +132,9 @@ export async function fetchProductsViaSupabase(
   pageSize: number = PRODUCT_PAGE_SIZE
 ): Promise<ListProductsResult> {
   const client = getSupabasePublicClient();
-  const anonKey =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    process.env.SUPABASE_ANON_KEY;
 
-  // Nếu chưa có anon key môi trường, sử dụng DAL dự phòng để trang hoạt động ổn định
-  if (!anonKey) {
+  // Nếu chưa có client (chưa cấu hình publishable key), fallback an toàn
+  if (!client) {
     const { listProducts } = await import("@/server/products");
     return listProducts({
       page: params.page,
@@ -210,11 +207,8 @@ export async function fetchProductsViaSupabase(
  */
 export async function fetchCategoriesViaSupabase() {
   const client = getSupabasePublicClient();
-  const anonKey =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    process.env.SUPABASE_ANON_KEY;
 
-  if (!anonKey) {
+  if (!client) {
     const { getCategories } = await import("@/server/products");
     return getCategories();
   }
