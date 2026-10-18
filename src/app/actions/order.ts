@@ -6,6 +6,7 @@ import { authorize } from "@/server/guards";
 import { OrderStatus, Role } from "@prisma/client";
 import { z } from "zod";
 import { safeLogError } from "@/lib/logger";
+import { recordAuditLog } from "@/lib/audit-log";
 
 const OrderItemInputSchema = z.object({
   productId: z.string().trim().min(1, "Mã sản phẩm không được rỗng"),
@@ -208,7 +209,7 @@ export async function updateOrderStatus(
   try {
     const existingOrder = await prisma.order.findUnique({
       where: { id: orderId },
-      select: { id: true, orderCode: true },
+      select: { id: true, orderCode: true, status: true },
     });
 
     if (!existingOrder) {
@@ -222,6 +223,16 @@ export async function updateOrderStatus(
     await prisma.order.update({
       where: { id: orderId },
       data: { status: newStatus },
+    });
+
+    // Ghi nhật ký kiểm toán Append-Only
+    await recordAuditLog({
+      actorId: auth.user.id,
+      action: "ORDER_STATUS_UPDATE",
+      entity: "Order",
+      entityId: orderId,
+      before: { status: existingOrder.status },
+      after: { status: newStatus },
     });
 
     revalidatePath("/admin/orders");

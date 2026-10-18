@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { requireUser } from "@/server/guards";
+import { requireAdmin } from "@/server/guards";
 import { getAllOrders } from "@/server/orders";
 import { Role } from "@prisma/client";
 import { OrderStatusSelector } from "./order-status-selector";
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminOrdersPage() {
   // BẮT BUỘC: Kiểm tra quyền ADMIN ngay tại Server Component
-  await requireUser(Role.ADMIN, "/login?next=/admin/orders");
+  await requireAdmin("/login?next=/admin/orders");
 
   const orders = await getAllOrders();
 

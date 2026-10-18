@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { requireUser } from "@/server/guards";
+import { requireAdmin } from "@/server/guards";
 import { Role } from "@prisma/client";
 import { getAdminProducts, getCategories } from "@/server/products";
 import { ProductForm } from "./product-form";
@@ -16,7 +16,7 @@ interface AdminProductsPageProps {
 
 export default async function AdminProductsPage(props: AdminProductsPageProps) {
   // 1. Kiểm tra xác thực & phân quyền ADMIN tại Server Component
-  await requireUser(Role.ADMIN, "/login?next=/admin/products");
+  await requireAdmin("/login?next=/admin/products");
 
   const searchParams = props.searchParams ? await props.searchParams : {};
   const page = Math.max(1, Number(searchParams?.page) || 1);

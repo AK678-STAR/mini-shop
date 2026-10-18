@@ -10,6 +10,7 @@ import {
 import { safeLogError } from "@/lib/logger";
 import { Prisma, Role } from "@prisma/client";
 import { authorize } from "@/server/guards";
+import { recordAuditLog } from "@/lib/audit-log";
 
 /**
  * Trích xuất FormData hoặc Object thành Record an toàn (loại bỏ any)
@@ -106,6 +107,20 @@ export async function createProduct(
         description: description ?? null,
         image: image || null,
         isActive: isActive ?? true,
+      },
+    });
+
+    // Ghi nhật ký kiểm toán Append-Only
+    await recordAuditLog({
+      actorId: auth.user.id,
+      action: "PRODUCT_CREATE",
+      entity: "Product",
+      entityId: newProduct.id,
+      after: {
+        name: newProduct.name,
+        slug: newProduct.slug,
+        price: newProduct.price,
+        stock: newProduct.stock,
       },
     });
 
@@ -340,6 +355,19 @@ export async function deleteProduct(id: string): Promise<ActionResponse> {
     // 3. Nếu chưa từng phát sinh đơn hàng -> Cho phép xoá cứng
     await prisma.product.delete({
       where: { id: validId },
+    });
+
+    // Ghi nhật ký kiểm toán Append-Only
+    await recordAuditLog({
+      actorId: auth.user.id,
+      action: "PRODUCT_DELETE",
+      entity: "Product",
+      entityId: validId,
+      before: {
+        name: product.name,
+        slug: product.slug,
+        price: product.price,
+      },
     });
 
     revalidatePath("/products");

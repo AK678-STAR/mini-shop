@@ -13,6 +13,7 @@
     "db:admin": "tsx scripts/create-admin.ts",
     "test:security": "node scripts/run-security-matrix.js",
     "test:security:all": "node scripts/run-security-scenarios.js && node scripts/run-security-matrix.js",
+    "test:admin": "node scripts/run-admin-audit-test.js",
     "test:products": "tsx tests/product-url-params.test.ts && tsx tests/products-supabase.test.ts",
     "test:sepay": "tsx tests/sepay-webhook.test.ts"
   },

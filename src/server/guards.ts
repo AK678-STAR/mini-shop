@@ -100,3 +100,47 @@ export async function authorize(
 
   return { ok: true, user };
 }
+
+export class GuardError extends Error {
+  code: "UNAUTHENTICATED" | "FORBIDDEN";
+  constructor(code: "UNAUTHENTICATED" | "FORBIDDEN", message: string) {
+    super(message);
+    this.name = "GuardError";
+    this.code = code;
+  }
+}
+
+/**
+ * 4. requireAdmin(redirectUrl?)
+ * Dùng tại layout.tsx hoặc Server Component trong khu vực /admin:
+ * - Chưa đăng nhập -> Chuyển hướng về trang đăng nhập (/login?next=/admin).
+ * - Sai vai trò (role !== Role.ADMIN) -> Chuyển hướng về /products (Từ chối).
+ * - Hợp lệ -> Trả về SessionUser.
+ */
+export async function requireAdmin(
+  redirectUrl: string = "/login?next=/admin"
+): Promise<SessionUser> {
+  const user = await getSessionUser();
+
+  if (!user) {
+    redirect(redirectUrl);
+  }
+
+  if (user.role !== Role.ADMIN) {
+    redirect("/products");
+  }
+
+  return user;
+}
+
+/**
+ * 5. assertAdmin(overrideHeaders?)
+ * Dùng khi cần kiểm tra quyền ADMIN ném lỗi có mã rõ ràng thay vì redirect (thích hợp cho unit tests / API)
+ */
+export async function assertAdmin(overrideHeaders?: Headers): Promise<SessionUser> {
+  const auth = await authorize(Role.ADMIN, overrideHeaders);
+  if (!auth.ok) {
+    throw new GuardError(auth.code, auth.message);
+  }
+  return auth.user;
+}
