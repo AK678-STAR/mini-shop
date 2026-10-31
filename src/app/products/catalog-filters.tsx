@@ -56,6 +56,9 @@ export function CatalogFilters({
     <div style={{ marginBottom: "28px" }}>
       {/* Search Input Bar */}
       <form onSubmit={handleSearchSubmit} style={{ marginBottom: "20px", display: "flex", gap: "12px", maxWidth: "600px" }}>
+        <label htmlFor="catalog-search" className="sr-only">
+          Tìm kiếm sản phẩm, laptop, khóa học
+        </label>
         <input
           type="text"
           name="q"
@@ -117,6 +120,9 @@ export function CatalogFilters({
 
         {/* Sort Select */}
         <div className="sort-wrapper">
+          <label htmlFor="catalog-sort" className="sr-only">
+            Sắp xếp danh sách sản phẩm
+          </label>
           <select
             className="select-input"
             id="catalog-sort"

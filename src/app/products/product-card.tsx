@@ -32,6 +32,7 @@ export function ProductCard({
       <Link
         href={`/products/${product.slug}`}
         className="product-card-img-wrap"
+        aria-label={`Xem chi tiết sản phẩm ${product.name}`}
         style={{ textDecoration: "none", display: "block", position: "relative" }}
       >
         <SafeImage

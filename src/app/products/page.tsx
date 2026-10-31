@@ -54,6 +54,7 @@ export default async function ProductsPage(props: ProductsPageProps) {
       </div>
 
       {/* Bộ lọc & Sắp xếp URL SearchParams */}
+      <h2 className="sr-only">Bộ lọc và danh sách sản phẩm</h2>
       <CatalogFilters
         categories={categories}
         currentCategory={params.category}
@@ -93,7 +94,7 @@ export default async function ProductsPage(props: ProductsPageProps) {
         <>
           <div className="products-grid">
             {products.map((product, idx) => (
-              <ProductCard key={product.id} product={product} priority={idx < 2} />
+              <ProductCard key={product.id} product={product} priority={idx === 0} />
             ))}
           </div>
 

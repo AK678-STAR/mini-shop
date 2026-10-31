@@ -80,8 +80,21 @@ html {
   font-size: 16px;
 }
 
+/* Screen reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-inter), 'Inter', system-ui, -apple-system, sans-serif;
   background-color: var(--bg-body);
   color: var(--text-main);
   line-height: 1.5;
@@ -292,7 +305,7 @@ button {
   justify-content: center;
 }
 .logo-text {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--font-plus-jakarta), 'Plus Jakarta Sans', sans-serif;
   font-size: 1.35rem;
   font-weight: 800;
   color: var(--text-main);
@@ -402,7 +415,7 @@ button {
   gap: 16px;
 }
 .page-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--font-plus-jakarta), 'Plus Jakarta Sans', sans-serif;
   font-size: clamp(1.6rem, 3vw, 2.2rem);
   font-weight: 800;
   letter-spacing: -0.5px;
@@ -739,7 +752,7 @@ button {
   width: fit-content;
 }
 .detail-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--font-plus-jakarta), 'Plus Jakarta Sans', sans-serif;
   font-size: clamp(1.5rem, 2.5vw, 2rem);
   font-weight: 800;
   color: var(--text-main);
@@ -930,7 +943,7 @@ button {
   margin-top: 48px;
 }
 .section-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--font-plus-jakarta), 'Plus Jakarta Sans', sans-serif;
   font-size: 1.5rem;
   font-weight: 800;
   margin-bottom: 20px;
@@ -1263,7 +1276,7 @@ button {
 }
 .modal-icon-success i { width: 36px; height: 36px; }
 .modal-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--font-plus-jakarta), 'Plus Jakarta Sans', sans-serif;
   font-size: 1.6rem;
   font-weight: 800;
   margin-bottom: 8px;
