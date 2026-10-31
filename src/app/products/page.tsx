@@ -8,7 +8,7 @@ import {
 import { CatalogFilters } from "./catalog-filters";
 import { ProductCard } from "./product-card";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 /**
  * Next.js 16 (App Router):
@@ -92,8 +92,8 @@ export default async function ProductsPage(props: ProductsPageProps) {
       ) : (
         <>
           <div className="products-grid">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {products.map((product, idx) => (
+              <ProductCard key={product.id} product={product} priority={idx < 2} />
             ))}
           </div>
 

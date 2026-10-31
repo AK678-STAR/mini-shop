@@ -26,6 +26,19 @@ export type AuthorizeResult =
 export async function getSessionUser(overrideHeaders?: Headers): Promise<SessionUser | null> {
   try {
     const reqHeaders = overrideHeaders ?? (await headers());
+
+    // Chỉ kích hoạt trong môi trường kiểm thử (NODE_ENV === "test")
+    if (process.env.NODE_ENV === "test" && reqHeaders.get("x-test-role")) {
+      return {
+        id: reqHeaders.get("x-test-user-id") || "mock-test-id",
+        email: reqHeaders.get("x-test-email") || "test@minishop.dev",
+        name: "Test User",
+        role: (reqHeaders.get("x-test-role") as Role) || Role.USER,
+        emailVerified: true,
+        image: null,
+      };
+    }
+
     const session = await auth.api.getSession({
       headers: reqHeaders,
     });

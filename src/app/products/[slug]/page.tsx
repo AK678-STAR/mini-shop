@@ -3,8 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductBySlug, getRelatedProducts } from "@/server/products";
 import { ProductCard } from "../product-card";
+import { SafeImage } from "@/components/ui/safe-image";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -88,17 +89,27 @@ export default async function ProductDetailPage(props: ProductDetailPageProps) {
             border: "1px solid var(--border-color)",
             padding: "24px",
             textAlign: "center",
+            position: "relative",
+            minHeight: "360px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          <img
-            src={product.image || "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=700&auto=format&fit=crop"}
+          <SafeImage
+            src={product.image || ""}
             alt={product.name}
+            width={600}
+            height={440}
             style={{
               width: "100%",
+              height: "auto",
               maxHeight: "440px",
               objectFit: "cover",
               borderRadius: "var(--radius-btn)",
             }}
+            priority={true}
+            sizes="(max-width: 768px) 100vw, 50vw"
           />
         </div>
 

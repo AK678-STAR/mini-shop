@@ -45,8 +45,36 @@ const securityHeaders = [
   },
 ];
 
+function getSupabaseHostname(): string {
+  const envUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!envUrl) {
+    return "bnzrwpahpmkhowhzhwbt.supabase.co";
+  }
+  try {
+    return new URL(envUrl).hostname;
+  } catch {
+    return "bnzrwpahpmkhowhzhwbt.supabase.co";
+  }
+}
+
+const supabaseHost = getSupabaseHostname();
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: supabaseHost,
+        pathname: "/storage/v1/object/public/**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+    ],
+    dangerouslyAllowSVG: false,
+  },
   async headers() {
     return [
       {

@@ -15,7 +15,9 @@
     "test:security:all": "node scripts/run-security-scenarios.js && node scripts/run-security-matrix.js",
     "test:admin": "node scripts/run-admin-audit-test.js",
     "test:products": "tsx tests/product-url-params.test.ts && tsx tests/products-supabase.test.ts",
-    "test:sepay": "tsx tests/sepay-webhook.test.ts"
+    "test:sepay": "tsx tests/sepay-webhook.test.ts",
+    "test:image": "tsx tests/validate-image.test.ts",
+    "test:signed-url": "node scripts/run-signed-url-test.js"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

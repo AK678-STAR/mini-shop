@@ -20,13 +20,13 @@
   
   /* Typography */
   --text-main: #0F172A;
-  --text-muted: #64748B;
+  --text-muted: #475569;
   --text-light: #F8FAFC;
   
   /* Status Colors */
-  --status-success: #10B981;
+  --status-success: #059669;
   --status-success-soft: #D1FAE5;
-  --status-danger: #EF4444;
+  --status-danger: #DC2626;
   --status-danger-soft: #FEE2E2;
   
   /* Shadows */

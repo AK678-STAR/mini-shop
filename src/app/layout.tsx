@@ -1,8 +1,23 @@
 import type { Metadata } from "next";
 import React from "react";
 import Link from "next/link";
+import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import { NavbarAuth } from "@/components/navbar-auth";
 import "@/style.css";
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+  variable: "--font-plus-jakarta",
+});
+
+const inter = Inter({
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "Mini Shop — Thiết Bị & Khóa Học Công Nghệ Cao Cấp",
@@ -15,15 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="vi" className={`${inter.variable} ${plusJakartaSans.variable}`}>
       <body>
         {/* Main Navbar */}
         <header className="navbar">
@@ -47,7 +54,18 @@ export default function RootLayout({
 
             {/* Actions & Auth status */}
             <div className="nav-actions" style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              <Link href="/products" className="cart-btn" aria-label="Giỏ hàng">
+              <Link
+                href="/products"
+                className="cart-btn"
+                aria-label="Giỏ hàng"
+                style={{
+                  minWidth: "48px",
+                  minHeight: "48px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
                 <span>🛒</span>
                 <span className="cart-badge">2</span>
               </Link>

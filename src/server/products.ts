@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
@@ -255,7 +256,34 @@ export async function getRelatedProducts(
   }));
 }
 
-export const getProducts = listProducts;
+/**
+ * Cache danh sách sản phẩm công khai dùng chung bằng Next.js Data Cache (unstable_cache)
+ * - Nhãn (tag): "products" -> Cho phép on-demand revalidation khi admin thay đổi dữ liệu
+ * - Thời gian sống (revalidate): 60 giây
+ * - BẢO MẬT: TUYỆT ĐỐI KHÔNG đọc cookie hay session bên trong hàm này (ngăn cache nhầm dữ liệu riêng).
+ */
+export const getCachedProducts = unstable_cache(
+  async (filtersKey: string) => {
+    const filters: ProductFilters = filtersKey ? JSON.parse(filtersKey) : {};
+    return listProducts(filters);
+  },
+  ["products-public-list"],
+  {
+    tags: ["products"],
+    revalidate: 60,
+  }
+);
+
+/**
+ * getProducts(filters)
+ * Gọi qua tầng cache công khai an toàn
+ */
+export async function getProducts(
+  filters: ProductFilters = {}
+): Promise<ListProductsResult> {
+  const serializedFilters = JSON.stringify(filters);
+  return getCachedProducts(serializedFilters);
+}
 
 /**
  * 4. getAdminProducts(params)

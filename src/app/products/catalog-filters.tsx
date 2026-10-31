@@ -59,6 +59,8 @@ export function CatalogFilters({
         <input
           type="text"
           name="q"
+          id="catalog-search"
+          aria-label="Tìm kiếm sản phẩm, laptop, khóa học"
           defaultValue={currentQ || ""}
           placeholder="Tìm kiếm laptop, linh kiện, khóa học..."
           style={{
@@ -117,6 +119,8 @@ export function CatalogFilters({
         <div className="sort-wrapper">
           <select
             className="select-input"
+            id="catalog-sort"
+            aria-label="Sắp xếp danh sách sản phẩm"
             value={currentSort || "newest"}
             onChange={(e) => updateParam("sort", e.target.value)}
             style={{

@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import prisma from "@/lib/prisma";
 import {
   ProductSchema,
@@ -124,7 +124,9 @@ export async function createProduct(
       },
     });
 
-    // Làm mới cache các trang danh sách sản phẩm
+    // Làm mới cache các trang danh sách sản phẩm và tag cache
+    revalidateTag("products", "max");
+    revalidateTag("products", "max");
     revalidatePath("/products");
     revalidatePath("/admin/products");
 
@@ -268,6 +270,7 @@ export async function updateProduct(
       },
     });
 
+    revalidateTag("products", "max");
     revalidatePath("/products");
     revalidatePath("/admin/products");
 
@@ -370,6 +373,7 @@ export async function deleteProduct(id: string): Promise<ActionResponse> {
       },
     });
 
+    revalidateTag("products", "max");
     revalidatePath("/products");
     revalidatePath("/admin/products");
 
@@ -383,6 +387,161 @@ export async function deleteProduct(id: string): Promise<ActionResponse> {
       ok: false,
       code: "UNKNOWN",
       message: "Hệ thống gặp sự cố khi xoá sản phẩm. Vui lòng thử lại sau.",
+    };
+  }
+}
+
+/**
+ * 4. LƯU SẢN PHẨM (saveProduct - Prompt 52)
+ * Hợp đồng vào-ra chuẩn:
+ * - Bước 1: Kiểm tra quyền ADMIN ở dòng đầu tiên qua guards
+ * - Bước 2: Xác thực Zod và ép kiểu tiền nguyên VNĐ (Math.round)
+ * - Bước 3: Ghi vào CSDL (tạo mới hoặc cập nhật)
+ * - Bước 4: Làm mới nhãn "products" bằng revalidateTag("products")
+ * - Lỗi quyền trả thông báo chung, không làm lộ chi tiết hệ thống
+ */
+export async function saveProduct(
+  input: unknown,
+  overrideHeaders?: Headers
+): Promise<ActionResponse> {
+  // 1. Kiểm tra phân quyền admin qua guards
+  const auth = await authorize(Role.ADMIN, overrideHeaders);
+  if (!auth.ok) {
+    return {
+      ok: false,
+      code: "FORBIDDEN",
+      message: "Bạn không có quyền thực hiện thao tác này.",
+    };
+  }
+
+  try {
+    const rawData = extractFormData(
+      input instanceof FormData || (input && typeof input === "object")
+        ? (input as FormData | Record<string, unknown>)
+        : {}
+    );
+
+    // Tiền tệ bắt buộc là số nguyên VNĐ (ép kiểu an toàn trước khi qua Zod)
+    if (rawData.price !== undefined && rawData.price !== null && !isNaN(Number(rawData.price))) {
+      rawData.price = Math.round(Number(rawData.price));
+    }
+    if (rawData.originalPrice !== undefined && rawData.originalPrice !== null && !isNaN(Number(rawData.originalPrice))) {
+      rawData.originalPrice = Math.round(Number(rawData.originalPrice));
+    }
+
+    // 2. Xác thực dữ liệu Zod
+    const parseResult = ProductSchema.safeParse(rawData);
+    if (!parseResult.success) {
+      return {
+        ok: false,
+        code: "INVALID_INPUT",
+        fieldErrors: parseResult.error.flatten().fieldErrors,
+        message: "Thông tin sản phẩm chưa hợp lệ. Vui lòng kiểm tra lại.",
+      };
+    }
+
+    const {
+      name,
+      slug,
+      price,
+      originalPrice,
+      stock,
+      categoryId,
+      description,
+      image,
+      isActive,
+    } = parseResult.data;
+
+    // Tiền là số nguyên VNĐ
+    const safePrice = Math.round(price);
+    const safeOriginalPrice =
+      originalPrice !== undefined && originalPrice !== null
+        ? Math.round(originalPrice)
+        : null;
+
+    const rawInput = rawData as Record<string, unknown>;
+    const targetId =
+      typeof rawInput.id === "string" && rawInput.id.trim()
+        ? rawInput.id.trim()
+        : null;
+
+    let savedId = targetId;
+
+    if (targetId) {
+      // Cập nhật sản phẩm
+      const updated = await prisma.product.update({
+        where: { id: targetId },
+        data: {
+          name,
+          slug,
+          price: safePrice,
+          originalPrice: safeOriginalPrice,
+          stock,
+          categoryId,
+          description: description ?? null,
+          image: image || null,
+          isActive: isActive ?? true,
+        },
+      });
+      savedId = updated.id;
+
+      await recordAuditLog({
+        actorId: auth.user.id,
+        action: "PRODUCT_UPDATE",
+        entity: "Product",
+        entityId: savedId,
+        after: { name, slug, price: safePrice, stock },
+      });
+    } else {
+      // Tạo mới sản phẩm
+      const created = await prisma.product.create({
+        data: {
+          name,
+          slug,
+          price: safePrice,
+          originalPrice: safeOriginalPrice,
+          stock,
+          categoryId,
+          description: description ?? null,
+          image: image || null,
+          isActive: isActive ?? true,
+        },
+      });
+      savedId = created.id;
+
+      await recordAuditLog({
+        actorId: auth.user.id,
+        action: "PRODUCT_CREATE",
+        entity: "Product",
+        entityId: savedId,
+        after: { name, slug, price: safePrice, stock },
+      });
+    }
+
+    // 3. Làm mới nhãn "products" và các trang liên quan
+    revalidateTag("products", "max");
+    revalidatePath("/products");
+    revalidatePath("/admin/products");
+
+    return {
+      ok: true,
+      message: "Lưu thông tin sản phẩm thành công!",
+      data: { id: savedId, slug, price: safePrice },
+    };
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return {
+        ok: false,
+        code: "DUPLICATE_SLUG",
+        message: "Đường dẫn định danh (slug) này đã tồn tại trong hệ thống.",
+      };
+    }
+
+    safeLogError("Lỗi trong saveProduct", error);
+    return {
+      ok: false,
+      code: "UNKNOWN",
+      message: "Hệ thống gặp sự cố khi lưu sản phẩm. Vui lòng thử lại sau.",
     };
   }
 }
