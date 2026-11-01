@@ -118,6 +118,7 @@ model Product {
   categoryId    String
   category      Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   orderItems    OrderItem[]
+  analyticsEvents AnalyticsEvent[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
@@ -175,3 +176,18 @@ model AuditLog {
   @@index([createdAt])
   @@map("audit_logs")
 }
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  name      String   // allowlist: product_view, add_to_cart, search_used
+  productId String?  @map("product_id")
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  lang      String   @default("vi") // vi, en
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([name])
+  @@index([productId])
+  @@index([createdAt])
+  @@map("analytics_events")
+}
+
