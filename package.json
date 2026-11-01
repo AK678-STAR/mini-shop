@@ -15,6 +15,11 @@
     "test:security:all": "node scripts/run-security-scenarios.js && node scripts/run-security-matrix.js",
     "test:admin": "node scripts/run-admin-audit-test.js",
     "test:products": "tsx tests/product-url-params.test.ts && tsx tests/products-supabase.test.ts",
+    "test:cache": "node scripts/run-cache-test.js",
+    "test:seo": "node scripts/run-seo-test.js",
+    "test:analytics": "node scripts/run-analytics-test.js",
+    "test:i18n": "node scripts/run-i18n-test.js",
+    "test:all": "npm run test:products && npm run test:cache && npm run test:seo && npm run test:analytics && npm run test:i18n",
     "test:sepay": "tsx tests/sepay-webhook.test.ts",
     "test:image": "tsx tests/validate-image.test.ts",
     "test:signed-url": "node scripts/run-signed-url-test.js"
