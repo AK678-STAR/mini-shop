@@ -153,57 +153,57 @@ export async function listProducts(
 
 /**
  * 2. getProductBySlug(slug)
- * Lấy chi tiết sản phẩm theo slug
+ * Lấy chi tiết sản phẩm theo slug (Dùng React.cache để deduplicate query giữa generateMetadata và Page)
  */
-export async function getProductBySlug(
-  slug: string
-): Promise<ProductDetailDTO | null> {
-  if (!slug || typeof slug !== "string") return null;
+export const getProductBySlug = cache(
+  async (slug: string): Promise<ProductDetailDTO | null> => {
+    if (!slug || typeof slug !== "string") return null;
 
-  const product = await prisma.product.findUnique({
-    where: {
-      slug,
-      isActive: true,
-    },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      price: true,
-      originalPrice: true,
-      stock: true,
-      image: true,
-      description: true,
-      specs: true,
-      category: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-        },
+    const product = await prisma.product.findUnique({
+      where: {
+        slug,
+        isActive: true,
       },
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        price: true,
+        originalPrice: true,
+        stock: true,
+        image: true,
+        description: true,
+        specs: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
-  if (!product) return null;
+    if (!product) return null;
 
-  return {
-    id: product.id,
-    name: product.name,
-    slug: product.slug,
-    price: product.price,
-    originalPrice: product.originalPrice,
-    stock: product.stock,
-    image: product.image,
-    category: product.category,
-    description: product.description,
-    specs: (product.specs as Record<string, string>) || null,
-    createdAt: product.createdAt.toISOString(),
-    updatedAt: product.updatedAt.toISOString(),
-  };
-}
+    return {
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      price: product.price,
+      originalPrice: product.originalPrice,
+      stock: product.stock,
+      image: product.image,
+      category: product.category,
+      description: product.description,
+      specs: (product.specs as Record<string, string>) || null,
+      createdAt: product.createdAt.toISOString(),
+      updatedAt: product.updatedAt.toISOString(),
+    };
+  }
+);
 
 /**
  * 3. getRelatedProducts(product, limit)

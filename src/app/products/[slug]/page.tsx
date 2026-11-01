@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProductBySlug, getRelatedProducts } from "@/server/products";
 import { ProductCard } from "../product-card";
@@ -9,6 +10,78 @@ export const revalidate = 60;
 
 interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
+}
+
+/**
+ * Sinh Metadata SEO kỹ thuật động theo chuẩn Next.js 16:
+ * - Title, Description, Canonical URL, OpenGraph
+ * - Ngăn chặn lập chỉ mục (noindex) nếu sản phẩm không tồn tại
+ * - Dùng getProductBySlug bọc trong React.cache() để không tốn thêm truy vấn DB
+ */
+export async function generateMetadata(
+  props: ProductDetailPageProps
+): Promise<Metadata> {
+  const { slug } = await props.params;
+  const product = await getProductBySlug(slug);
+
+  if (!product) {
+    return {
+      title: "Sản phẩm không tồn tại | Mini Shop",
+      description: "Sản phẩm bạn đang tìm kiếm không tồn tại hoặc đã ngừng kinh doanh.",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  const baseUrl = (
+    process.env.NEXT_PUBLIC_SITE_URL || "https://mini-shop-q7ejctkn4-k0978.vercel.app"
+  ).replace(/\/$/, "");
+
+  const canonicalUrl = `${baseUrl}/products/${product.slug}`;
+  const rawDesc =
+    product.description ||
+    `Mua ngay ${product.name} chính hãng 100%, bảo hành uy tín tại Mini Shop.`;
+  const cleanDesc = rawDesc.replace(/<[^>]*>?/gm, "").slice(0, 160).trim();
+
+  return {
+    title: `${product.name} | Mini Shop`,
+    description: cleanDesc,
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        vi: `${baseUrl}/products/${product.slug}`,
+        en: `${baseUrl}/en/products/${product.slug}`,
+      },
+    },
+    openGraph: {
+      title: `${product.name} | Mini Shop`,
+      description: cleanDesc,
+      url: canonicalUrl,
+      siteName: "Mini Shop",
+      locale: "vi_VN",
+      type: "website",
+      images: product.image
+        ? [
+            {
+              url: product.image,
+              width: 1200,
+              height: 630,
+              alt: product.name,
+            },
+          ]
+        : [],
+    },
+  };
+}
+
+/**
+ * Làm sạch chuỗi JSON-LD để chống tấn công XSS / Breakout thẻ <script>
+ * Thay thế ký tự "<" thành "\u003c" an toàn theo chuẩn W3C
+ */
+export function sanitizeJsonLd(data: unknown): string {
+  return JSON.stringify(data).replace(/</g, "\\u003c");
 }
 
 export default async function ProductDetailPage(props: ProductDetailPageProps) {
@@ -43,8 +116,39 @@ export default async function ProductDetailPage(props: ProductDetailPageProps) {
       ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
       : null;
 
+  const baseUrl = (
+    process.env.NEXT_PUBLIC_SITE_URL || "https://mini-shop-q7ejctkn4-k0978.vercel.app"
+  ).replace(/\/$/, "");
+
+  // Cấu trúc dữ liệu có cấu trúc Schema.org/Product
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    image: product.image ? [product.image] : [],
+    description: product.description || product.name,
+    sku: product.id,
+    offers: {
+      "@type": "Offer",
+      url: `${baseUrl}/products/${product.slug}`,
+      priceCurrency: "VND",
+      price: Math.round(product.price), // Tiền số nguyên VNĐ
+      availability:
+        product.stock > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+      itemCondition: "https://schema.org/NewCondition",
+    },
+  };
+
   return (
     <div className="container" style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 20px" }}>
+      {/* Schema.org Structured Data (Đã làm sạch ký tự < để chống XSS) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: sanitizeJsonLd(productJsonLd) }}
+      />
+
       {/* Breadcrumb */}
       <nav
         style={{
